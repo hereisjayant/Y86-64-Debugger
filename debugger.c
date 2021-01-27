@@ -117,12 +117,12 @@ int main(int argc, char **argv) {
       // Read to the end of the line
       while ((c = fgetc(stdin)) != EOF && c != '\n');
       if (c == '\n') {
-	printErrorCommandTooLong(stdout);
-	continue;
+	      printErrorCommandTooLong(stdout);
+	      continue;
       }
       else {
-	// In this case there is an EOF at the end of a line.
-	// Process line as usual.
+	      // In this case there is an EOF at the end of a line.
+	      // Process line as usual.
       }
     }
 
@@ -137,12 +137,75 @@ int main(int argc, char **argv) {
     }
 
     // Get the arguments to the command, if provided.
-    parameters = strtok(NULL, "\n\r");
+    parameters = strtok(NULL, "\n\r"); //this gets the next token 
 
     sprintf(previousLine, "%s %s\n", command, parameters ? parameters : "");
 
     /* THIS PART TO BE COMPLETED BY THE STUDENT */
-    
+    if((strcasecmp(command, "quit")==0) || (strcasecmp(command, "exit")==0)){
+      break;
+    }
+    else if(strcasecmp(command, "step")==0){
+      fetchInstruction(&state, &nextInstruction);
+      executeInstruction(&state, &nextInstruction);
+      printInstruction(stdout, &nextInstruction);
+    }
+    else if(strcasecmp(command, "run")==0){
+      uint64_t address = state.programCounter;
+      // while(nextInstruction.icode != I_HALT){
+        printf("%d",nextInstruction.icode);
+        address = state.programCounter;
+        //not working
+        if(hasBreakpoint(address)==1){
+          break;
+        }
+        //not working
+        if(state.programMap[address] == I_HALT){
+          break;
+        }
+        printf("another statement");
+        fetchInstruction(&state, &nextInstruction);
+        executeInstruction(&state, &nextInstruction);
+      // }
+    }
+    else if(strcasecmp(command, "next")==0){
+
+    }
+    else if(strcasecmp(command, "jump")==0){
+
+    }
+    else if(strcasecmp(command, "break")==0){
+      
+    }
+    else if(strcasecmp(command, "delete")==0){
+
+    }
+    else if(strcasecmp(command, "registers")==0){
+      printRegisterValue(stdout, &state, R_RAX);
+      printRegisterValue(stdout, &state, R_RCX);
+      printRegisterValue(stdout, &state, R_RDX);
+      printRegisterValue(stdout, &state, R_RBX);
+      printRegisterValue(stdout, &state, R_RSI);
+      printRegisterValue(stdout, &state, R_RDI);
+      printRegisterValue(stdout, &state, R_RSP);
+      printRegisterValue(stdout, &state, R_RBP);
+      printRegisterValue(stdout, &state, R_R8);
+      printRegisterValue(stdout, &state, R_R9);
+      printRegisterValue(stdout, &state, R_R10);
+      printRegisterValue(stdout, &state, R_R11);
+      printRegisterValue(stdout, &state, R_R12);
+      printRegisterValue(stdout, &state, R_R13);
+      printRegisterValue(stdout, &state, R_R14);
+
+    }
+    else if(strcasecmp(command, "examine")==0){
+      
+    }
+    else{
+
+    }
+
+
   }
 
   deleteAllBreakpoints();
