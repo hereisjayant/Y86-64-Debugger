@@ -153,7 +153,7 @@ int main(int argc, char **argv) {
     else if(strcasecmp(command, "run")==0){
       uint64_t address = state.programCounter;
       // while(nextInstruction.icode != I_HALT){
-        printf("%d",nextInstruction.icode);
+        // printf("%-8s",*instrName[instr->icode][instr->ifun]);
         address = state.programCounter;
         //not working
         if(hasBreakpoint(address)==1){
@@ -172,13 +172,21 @@ int main(int argc, char **argv) {
 
     }
     else if(strcasecmp(command, "jump")==0){
-
-    }
-    else if(strcasecmp(command, "break")==0){
       
     }
+    else if(strcasecmp(command, "break")==0){
+      uint64_t break_address = strtoul(parameters, NULL, 0);
+      if(hasBreakpoint(break_address)==0){
+        if(state.programSize>=break_address){
+          addBreakpoint(break_address);
+        }
+      }
+    }
     else if(strcasecmp(command, "delete")==0){
-
+      uint64_t break_address = strtoul(parameters, NULL, 0);
+      if(hasBreakpoint(break_address)==1){
+        deleteBreakpoint(break_address);
+      }
     }
     else if(strcasecmp(command, "registers")==0){
       printRegisterValue(stdout, &state, R_RAX);
@@ -199,10 +207,11 @@ int main(int argc, char **argv) {
 
     }
     else if(strcasecmp(command, "examine")==0){
-      
+      uint64_t examine_addr = strtoul(parameters, NULL, 0);
+      printMemoryValueQuad(stdout, &state, examine_addr);
     }
     else{
-
+      
     }
 
 
