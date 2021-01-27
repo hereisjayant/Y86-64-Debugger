@@ -25,6 +25,43 @@ static void deleteBreakpoint(uint64_t address);
 static void deleteAllBreakpoints(void);
 static int  hasBreakpoint(uint64_t address);
 
+static const char *instrName[256][256] = {
+  [I_HALT]   = {"halt"},
+  [I_NOP]    = {"nop"},
+  [I_RRMVXX] = {
+    [C_NC] = "rrmovq",
+    [C_LE] = "cmovle",
+    [C_L]  = "cmovl",
+    [C_E]  = "cmove",
+    [C_NE] = "cmovne",
+    [C_GE] = "cmovge",
+    [C_G]  = "cmovg"},
+  [I_IRMOVQ] = {"irmovq"},
+  [I_RMMOVQ] = {"rmmovq"},
+  [I_MRMOVQ] = {"mrmovq"},
+  [I_OPQ]    = {
+    [A_ADDQ] = "addq",
+    [A_SUBQ] = "subq",
+    [A_ANDQ] = "andq",
+    [A_XORQ] = "xorq",
+    [A_MULQ] = "mulq",
+    [A_DIVQ] = "divq",
+    [A_MODQ] = "modq"
+  },
+  [I_JXX]    = {
+    [C_NC] = "jmp",
+    [C_LE] = "jle",
+    [C_L]  = "jl",
+    [C_E]  = "je",
+    [C_NE] = "jne",
+    [C_GE] = "jge",
+    [C_G]  = "jg"},
+  [I_CALL]   = {"call"},
+  [I_RET]    = {"ret"},
+  [I_PUSHQ]  = {"pushq"},
+  [I_POPQ]   = {"popq"}
+};
+
 int main(int argc, char **argv) {
   
   int fd;
@@ -167,11 +204,20 @@ int main(int argc, char **argv) {
         fetchInstruction(&state, &nextInstruction);
         executeInstruction(&state, &nextInstruction);
       // }
+    } //this is under testing:
+    else if(strcasecmp(command, "next")==0){ //this is how you get the name of the instruction
+      // fprintf(stdout, "%s",instrName[nextInstruction.icode][nextInstruction.ifun]); 
+      if(instrName[nextInstruction.icode][nextInstruction.ifun]=="irmovq"){
+        printf("Success");
+      }
+      // printf("%s",*instrName[nextInstruction.icode][nextInstruction.ifun]);
     }
-    else if(strcasecmp(command, "next")==0){
-
-    }
-    else if(strcasecmp(command, "jump")==0){
+    else if(strcasecmp(command, "jump")==0){ //TODO: change this 
+      uint64_t jump_address = strtoul(parameters, NULL, 0);
+      
+      nextInstruction.valP = jump_address;
+      fetchInstruction(&state, &nextInstruction);
+      printInstruction(stdout, &nextInstruction);
       
     }
     else if(strcasecmp(command, "break")==0){
