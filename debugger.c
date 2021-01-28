@@ -188,37 +188,26 @@ int main(int argc, char **argv) {
       printInstruction(stdout, &nextInstruction);
     }
     else if(strcasecmp(command, "run")==0){
-      uint64_t address = state.programCounter;
-      // while(nextInstruction.icode != I_HALT){
-        // printf("%-8s",*instrName[instr->icode][instr->ifun]);
-        address = state.programCounter;
-        //not working
-        if(hasBreakpoint(address)==1){
-          break;
-        }
-        //not working
-        if(state.programMap[address] == I_HALT){
-          break;
-        }
-        printf("another statement");
+      while(1){
+        const char *instruction_name = instrName[nextInstruction.icode][nextInstruction.ifun];
         fetchInstruction(&state, &nextInstruction);
         executeInstruction(&state, &nextInstruction);
-      // }
-    } //this is under testing:
-    else if(strcasecmp(command, "next")==0){ //this is how you get the name of the instruction
-      // fprintf(stdout, "%s",instrName[nextInstruction.icode][nextInstruction.ifun]); 
-      if(instrName[nextInstruction.icode][nextInstruction.ifun]=="irmovq"){
-        printf("Success");
-      }
-      // printf("%s",*instrName[nextInstruction.icode][nextInstruction.ifun]);
+        printf("%s\n",instruction_name );
+        if(strcasecmp(instruction_name, "halt")==0){
+          break;
+        } 
+        if(hasBreakpoint(state.programCounter)){
+          fetchInstruction(&state, &nextInstruction);
+          printInstruction(stdout, &nextInstruction);
+          break;
+        }
+      }  
     }
     else if(strcasecmp(command, "jump")==0){ //TODO: change this 
       uint64_t jump_address = strtoul(parameters, NULL, 0);
-      
       nextInstruction.valP = jump_address;
       fetchInstruction(&state, &nextInstruction);
       printInstruction(stdout, &nextInstruction);
-      
     }
     else if(strcasecmp(command, "break")==0){
       uint64_t break_address = strtoul(parameters, NULL, 0);
@@ -250,19 +239,14 @@ int main(int argc, char **argv) {
       printRegisterValue(stdout, &state, R_R12);
       printRegisterValue(stdout, &state, R_R13);
       printRegisterValue(stdout, &state, R_R14);
-
     }
     else if(strcasecmp(command, "examine")==0){
       uint64_t examine_addr = strtoul(parameters, NULL, 0);
       printMemoryValueQuad(stdout, &state, examine_addr);
     }
-    else{
-      
+    else{ 
     }
-
-
   }
-
   deleteAllBreakpoints();
   munmap(state.programMap, state.programSize);
   close(fd);
