@@ -209,7 +209,43 @@ int main(int argc, char **argv) {
       }  
     }
     else if(strcasecmp(command, "next")==0){
-      
+      const char *instruction_name = instrName[nextInstruction.icode][nextInstruction.ifun];
+      if(strcasecmp(instruction_name, "call")==0){
+        long int stack_pointer = state.registerFile[R_RSP];
+
+        ////////////////////////////////////////
+        while(1){
+          const char *instruction_name = instrName[nextInstruction.icode][nextInstruction.ifun];
+          int valid = fetchInstruction(&state, &nextInstruction);
+          int valid_exe = executeInstruction(&state, &nextInstruction);
+          // printf("%s\n",instruction_name );
+
+          if(strcasecmp(instruction_name, "halt")==0){
+            break;
+          } 
+          if(hasBreakpoint(state.programCounter)){
+            fetchInstruction(&state, &nextInstruction);
+            printInstruction(stdout, &nextInstruction);
+            break;
+          }
+          if(valid!=1 || valid_exe!=1){
+            printErrorInvalidInstruction(stdout, &nextInstruction);
+            break;
+          }
+          if(state.programCounter==stack_pointer){
+            fetchInstruction(&state, &nextInstruction);
+            printInstruction(stdout, &nextInstruction);
+            break;
+          }
+        } 
+        ////////////////////////////////////////
+        
+      }
+      else{
+        fetchInstruction(&state, &nextInstruction);
+        executeInstruction(&state, &nextInstruction);
+        printInstruction(stdout, &nextInstruction);
+      }
     }
     else if(strcasecmp(command, "jump")==0){
       uint64_t jump_address = strtoul(parameters, NULL, 0);
