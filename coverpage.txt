@@ -47,10 +47,10 @@ file. If working in pairs both of you must do this.
 
 
 STUDENT  1
-Name :
-St. No:
-CWL:
-Email:
+Name : Kevin Shen
+St. No: 85809796
+CWL: kevins00	
+Email: daxinshen@gmail.com
 
 
 STUDENT  2
