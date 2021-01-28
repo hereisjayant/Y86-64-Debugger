@@ -192,7 +192,7 @@ int main(int argc, char **argv) {
         const char *instruction_name = instrName[nextInstruction.icode][nextInstruction.ifun];
         fetchInstruction(&state, &nextInstruction);
         executeInstruction(&state, &nextInstruction);
-        printf("%s\n",instruction_name );
+        // printf("%s\n",instruction_name );
         if(strcasecmp(instruction_name, "halt")==0){
           break;
         } 
@@ -210,17 +210,19 @@ int main(int argc, char **argv) {
       printInstruction(stdout, &nextInstruction);
     }
     else if(strcasecmp(command, "break")==0){
-      uint64_t break_address = strtoul(parameters, NULL, 0);
+      uint64_t break_address = strtoul(parameters, NULL, 0)+10;
       if(hasBreakpoint(break_address)==0){
         if(state.programSize>=break_address){
+          // printf("BREAK ADDED AT %ld",break_address);
           addBreakpoint(break_address);
         }
       }
     }
     else if(strcasecmp(command, "delete")==0){
-      uint64_t break_address = strtoul(parameters, NULL, 0);
+      uint64_t break_address = strtoul(parameters, NULL, 0)+10;
       if(hasBreakpoint(break_address)==1){
         deleteBreakpoint(break_address);
+        printf("deleted breakpoint");
       }
     }
     else if(strcasecmp(command, "registers")==0){
