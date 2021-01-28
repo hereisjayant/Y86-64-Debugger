@@ -191,17 +191,19 @@ int main(int argc, char **argv) {
       while(1){
         const char *instruction_name = instrName[nextInstruction.icode][nextInstruction.ifun];
         int valid = fetchInstruction(&state, &nextInstruction);
-        executeInstruction(&state, &nextInstruction);
+        int valid_exe = executeInstruction(&state, &nextInstruction);
         // printf("%s\n",instruction_name );
-        if(valid!=1){
-          printErrorInvalidInstruction(stdout, &nextInstruction);
-        }
+        
         if(strcasecmp(instruction_name, "halt")==0){
           break;
         } 
         if(hasBreakpoint(state.programCounter)){
           fetchInstruction(&state, &nextInstruction);
           printInstruction(stdout, &nextInstruction);
+          break;
+        }
+        if(valid!=1 || valid_exe!=1){
+          printErrorInvalidInstruction(stdout, &nextInstruction);
           break;
         }
       }  
