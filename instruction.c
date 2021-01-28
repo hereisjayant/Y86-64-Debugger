@@ -31,8 +31,13 @@ int memReadQuadLE(machine_state_t *state, uint64_t address, uint64_t *value) {
   if (address+7 > state->programSize){
     return 0; 
   }
-  *value = state->programMap[address];
- // *value = __builtin_bswap64(state->programMap[address]);
+  //*value = state->programMap[address];
+  //*value = __builtin_bswap64(state->programMap[address]);
+  uint64_t result = 0;
+  for(int i = 0; i <8; i++){
+    result += (state->programMap[address+i]) << (8*i);
+  }
+  *value = result;
   return 1;
 }
 
@@ -57,10 +62,15 @@ int memWriteByte(machine_state_t *state,  uint64_t address, uint8_t value) {
 int memWriteQuadLE(machine_state_t *state, uint64_t address, uint64_t value) {
 
   /* THIS PART TO BE COMPLETED BY THE STUDENT */
-  if (address > state->programSize){
+  if (address+7 > state->programSize){
     return 0; 
   }
-  state->programMap[address] = __builtin_bswap64(value);
+  //state->programMap[address] = __builtin_bswap64(value);
+  uint64_t copy = value;
+  for(int i = 0; i<8; i++){
+    state->programMap[address+i] = copy%256;
+    copy = copy/256;
+  }
   return 1;
 }
 
@@ -168,9 +178,9 @@ int executeInstruction(machine_state_t *state, y86_instruction_t *instr) {
   if(instr->icode == I_HALT){
     return 1;
   }
-  //flags
-  int zeroflag = 0;
-  int signflag = 0;
+  //set flags
+  int zeroflag = (state->conditionCodes%2==1);
+  int signflag = (state->conditionCodes>=2);
   //nop
   if(instr->icode == I_NOP){
     state->programCounter = instr->valP;
@@ -230,7 +240,7 @@ int executeInstruction(machine_state_t *state, y86_instruction_t *instr) {
   }
   //rmmovq
   else if(instr->icode == I_RMMOVQ){   
-    if(memWriteQuadLE(state, state->programMap[state->registerFile[instr->rB]]+instr->valC, 
+    if(memWriteQuadLE(state, state->registerFile[instr->rB]+instr->valC, 
     state->registerFile[instr->rA])){
       state->programCounter = instr->valP;
       return 1;
@@ -239,10 +249,12 @@ int executeInstruction(machine_state_t *state, y86_instruction_t *instr) {
   }
   //mrmovq
   else if(instr->icode == I_MRMOVQ){
-    if(memReadQuadLE(state, state->programMap[state->registerFile[instr->rB]]+instr->valC, &(state->registerFile[instr->rA]))){
+    if(memReadQuadLE(state, state->registerFile[instr->rB]+instr->valC, 
+    &(state->registerFile[instr->rA]))){
       state->programCounter = instr->valP;
       return 1;
     }
+    return 0;
   }
   //alu op
   else if(instr->icode == I_OPQ){
@@ -276,8 +288,28 @@ int executeInstruction(machine_state_t *state, y86_instruction_t *instr) {
         break;
     }
     //set flags
-    zeroflag = (state->programMap[instr->rB] == 0);
-    signflag = (state->programMap[instr->rB] > 0x7FFFFFFFFFFFFFFF);
+    if(state->programMap[instr->rB] == 0){
+      if(state->conditionCodes%2==0){
+        state->conditionCodes += CC_ZERO_MASK;
+      }
+    }
+    else{
+     if(state->conditionCodes%2==1){
+        state->conditionCodes -= CC_ZERO_MASK;
+      } 
+    }
+    if(state->programMap[instr->rB] > 0x7FFFFFFFFFFFFFFF){
+      //if(state->conditionCodes>>1)%2==0){
+      if(state->conditionCodes<2){
+        state->conditionCodes += CC_SIGN_MASK;
+      }
+    }
+    else{
+      //if(state->conditionCodes>>1)%2==1){
+      if(state->conditionCodes>=2){
+        state->conditionCodes -= CC_SIGN_MASK;
+      }
+    }
     state->programCounter = instr->valP;
     return 1;
   }
@@ -324,6 +356,7 @@ int executeInstruction(machine_state_t *state, y86_instruction_t *instr) {
         }
         break;
     }
+    state->programCounter = instr->valP;
     return 1;
   }
   //call
