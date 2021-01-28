@@ -15,6 +15,7 @@ int memReadByte(machine_state_t *state,	uint64_t address, uint8_t *value) {
 
   /* THIS PART TO BE COMPLETED BY THE STUDENT */
   if (address > state->programSize){
+    printf("Error: Address out of bounds!");
     return 0;
   }
   *value = state->programMap[address];
@@ -29,6 +30,7 @@ int memReadQuadLE(machine_state_t *state, uint64_t address, uint64_t *value) {
   
   /* THIS PART TO BE COMPLETED BY THE STUDENT */
   if (address+7 > state->programSize){
+    printf("Error: Address out of bounds!");
     return 0; 
   }
   //*value = state->programMap[address];
@@ -49,6 +51,7 @@ int memWriteByte(machine_state_t *state,  uint64_t address, uint8_t value) {
 
   /* THIS PART TO BE COMPLETED BY THE STUDENT */
   if (address > state->programSize){
+    printf("Error: Address out of bounds!");
     return 0;
   }
   state->programMap[address] = value ;
@@ -63,6 +66,7 @@ int memWriteQuadLE(machine_state_t *state, uint64_t address, uint64_t value) {
 
   /* THIS PART TO BE COMPLETED BY THE STUDENT */
   if (address+7 > state->programSize){
+    printf("Error: Address out of bounds!");
     return 0; 
   }
   //state->programMap[address] = __builtin_bswap64(value);
@@ -361,41 +365,41 @@ int executeInstruction(machine_state_t *state, y86_instruction_t *instr) {
   }
   //call
   else if(instr->icode == I_CALL){
-    state->registerFile[R_RSP] += 8; 
-    if(memWriteQuadLE(state, state->programMap[state->registerFile[R_RSP]]-8, instr->valP)){
+    if(memWriteQuadLE(state, state->registerFile[R_RSP], instr->valP)){
+       state->registerFile[R_RSP] -= 8; 
       state->programCounter = instr->valC;
       return 1;
     }
-    state->registerFile[R_RSP] -= 8;
     return 0; 
   }
   //return
   else if(instr->icode == I_RET){
-    if(memReadQuadLE(state, state->programMap[state->registerFile[R_RSP]]-8, &(state->programCounter))){
-      state->registerFile[R_RSP] -= 8;
+    if(memReadQuadLE(state, state->registerFile[R_RSP]+8, &(state->programCounter))){
+      state->registerFile[R_RSP] += 8;
       return 1;
     }
     return 0;
   }
   //push
   else if(instr->icode == I_PUSHQ){
-    state->registerFile[R_RSP] += 8; 
-    if(memWriteQuadLE(state, state->programMap[state->registerFile[R_RSP]]-8, state->registerFile[instr->rA])){
-      state->programCounter = instr->valC;
+    if(memWriteQuadLE(state, state->registerFile[R_RSP], state->registerFile[instr->rA])){
+      state->registerFile[R_RSP] -= 8; 
+      state->programCounter = instr->valP;
       return 1;
     }
-    state->registerFile[R_RSP] -= 8;
     return 0; 
   }
   //pop
   else if(instr->icode == I_POPQ){
-    if(memReadQuadLE(state, state->programMap[state->registerFile[R_RSP]]-8, &(state->registerFile[instr->rA]))){
-      state->registerFile[R_RSP] -= 8;
+    if(memReadQuadLE(state, state->registerFile[R_RSP]+8, &(state->registerFile[instr->rA]))){
+      state->registerFile[R_RSP] += 8;
+      state->programCounter = instr->valP;
       return 1;
     }
     return 0;
   }
 
+  printf("invalid instruction: this should never happen");
   return 0;
 
 }
