@@ -190,9 +190,12 @@ int main(int argc, char **argv) {
     else if(strcasecmp(command, "run")==0){
       while(1){
         const char *instruction_name = instrName[nextInstruction.icode][nextInstruction.ifun];
-        fetchInstruction(&state, &nextInstruction);
+        int valid = fetchInstruction(&state, &nextInstruction);
         executeInstruction(&state, &nextInstruction);
         // printf("%s\n",instruction_name );
+        if(valid!=1){
+          printErrorInvalidInstruction(stdout, &nextInstruction);
+        }
         if(strcasecmp(instruction_name, "halt")==0){
           break;
         } 
@@ -203,11 +206,20 @@ int main(int argc, char **argv) {
         }
       }  
     }
-    else if(strcasecmp(command, "jump")==0){ //TODO: change this 
+    else if(strcasecmp(command, "next")==0){
+      
+    }
+    else if(strcasecmp(command, "jump")==0){
       uint64_t jump_address = strtoul(parameters, NULL, 0);
       nextInstruction.valP = jump_address;
-      fetchInstruction(&state, &nextInstruction);
+      state.programCounter = jump_address;
+      int valid = fetchInstruction(&state, &nextInstruction);//also checks for errors
+      if(valid==1){
       printInstruction(stdout, &nextInstruction);
+      }
+      else{
+        printErrorInvalidInstruction(stdout, &nextInstruction);
+      }
     }
     else if(strcasecmp(command, "break")==0){
       uint64_t break_address = strtoul(parameters, NULL, 0)+10;
@@ -222,7 +234,7 @@ int main(int argc, char **argv) {
       uint64_t break_address = strtoul(parameters, NULL, 0)+10;
       if(hasBreakpoint(break_address)==1){
         deleteBreakpoint(break_address);
-        printf("deleted breakpoint");
+        // printf("deleted breakpoint");
       }
     }
     else if(strcasecmp(command, "registers")==0){
