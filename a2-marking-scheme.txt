@@ -1,0 +1,90 @@
+Total before late penalty: [/46]
+
+[/1] Filled in Cover Page
+
+
+[/2] Compiles without warnings   
+
+
+[/13] fetchInstruction
+      [/1] Properly reads and interprets the first byte as icode/ifun
+      [/1] Properly identifies invalid instructions based on invalid
+      	   icode or ifun
+      
+      [/3] Properly reads the second byte when necessary, identifying rA/rB
+      [/1] Properly identifies invalid instructions based on invalid
+      	   or missing rA or rB
+
+      [/3] Properly reads valC when necessary, in little endian, from
+      	   the appropriate byte
+      [/1] Properly identifies short instructions with
+      	   missing/incomplete valC
+
+      [/2] Properly updates the value of valP depending on instruction size
+      [/1] Returns correct value (0 for halt or invalid, 1 elsewhere)
+
+[/32] executeInstruction
+
+      Proper implementation of each instruction:
+      [/1] halt (no action)
+      [/1] nop (update PC)
+      [/2] rrmovq (test condition, update register, update PC)
+      [/2] irmovq (update register, update PC)
+      [/3] rmmovq (compute address, write to memory, update PC,
+      	   return 0 on error)
+      [/3] rmmovq (compute address, read from memory, update register,
+      	   update PC, return 0 on error)
+      [/4] addq/subq/andq/xorq/mulq/divq/modq
+      	   * 2   point for computing proper result in all cases
+	   * 0.5 point for updating register
+	   * 1   point for updating CC (zero and sign)
+	   * 0.5 point for updating PC
+      [/2] jXX (test condition, update PC based on condition)
+      [/3] call  (update SP, write to memory, update PC, return 0 on error)
+      [/3] ret   (update SP, read from memory, update PC, return 0 on error)
+      [/3] pushq (update SP, write to memory, update PC, return 0 on error)
+      [/3] popq  (update SP, read from memory, update register, update PC,
+      	   return 0 on error)
+      [/1] invalid or too short (return 0)
+      [/1] prints invalid memory location error message if appropriate
+
+[/6] Memory operations
+
+      [/1] memReadByte (check address, update *value, return 0/1)
+      [/2] memReadQuadLE (check address, compute LE, update *value,
+     	  return 0/1)
+      [/1] memWriteByte (check address, update map, return 0/1)
+      [/2] memWriteQuadLE (check address, update map bytes, return 0/1)
+
+[/23] Debugger commands
+
+      [/1] quit
+      [/2] step (execute, fetch, print)
+      [/3] run (execute, fetch, check breakpoint on loop; print last)
+      [/4] next (for call, retrieve and check SP, execute, fetch;
+      	   for others, execute, fetch; print last)
+      [/2] jump (error on no parameter, read parameter, update PC,
+      	   fetch, print)
+      [/2] break (error on no parameter, read parameter, add BP)
+      [/2] delete (error on no parameter, read parameter, delete BP)
+      [/2] registers (loop calling printRegisterValue)
+      [/2] printquad (error on no parameter, read parameter, print memory)
+      [/2] printbyte (error on no parameter, read parameter, print memory)
+      [/1] invalid command
+
+[/12] Code style and implementation
+
+       [/2] Reasonable decomposition into functions
+       [/2] Avoids excessive code repetition
+       [/1] Comments explaining what the code does, when appropriate
+       [/2] Style with respect to indentation, line and function length
+       [/1] Appropriate names for functions, variables, parameters
+       [/2] Reasonable choice of algorithms and approach to handling
+       	    the problem
+       [/2] Misc - You get full marks here unless the marker has added
+            comments below and indicated why you lost marks. The purpose
+            of this mark category is for the marker to deduct points for
+            problems/issues with your assignment that are not properly
+            capture in the other more specific parts of the 
+            marking rubric.
+   
