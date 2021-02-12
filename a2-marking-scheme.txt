@@ -1,5 +1,4 @@
 Total before late penalty: [80/89]
-    ***Total after 100.0% late penalty is 0.0
 
 [1/1] Filled in Cover Page
 
@@ -89,4 +88,5 @@ Total before late penalty: [80/89]
             capture in the other more specific parts of the 
             marking rubric.
       use numerical constants for icdoe ifun etc.
+
 
